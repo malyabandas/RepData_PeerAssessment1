@@ -8,7 +8,8 @@ output:
 #### May 2 2020
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 suppressPackageStartupMessages(library(lubridate))
 
 # unzip file if not already in directory
@@ -22,7 +23,8 @@ activity$date <- ymd(activity$date)
 ```
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(ggplot2))
 
@@ -75,12 +77,15 @@ g + geom_histogram(binwidth = 1000
           , axis.text = element_text(size = 10))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 #### Summary (ignoring days where no data was ̥retrieved):  
-- Median: `r median_steps` steps per day  
-- Mean: `r mean_steps` steps per day
+- Median: 10395 steps per day  
+- Mean: 9354 steps per day
 
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 # group data by interval and apply mean to get average steps per interval
 daily_activity <- activity %>% 
     filter(!is.na(steps)) %>%
@@ -117,15 +122,18 @@ g + geom_line(colour = "steelblue", lwd = 1) +
     theme(plot.title = element_text(hjust = 0.5))
 ```
 
-#### Time interval `r max_interval` has the maximum average number of steps at `r max_avg_steps`.
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+#### Time interval 835 has the maximum average number of steps at 206.
 
 ## Imputing missing values
-There are `r sum(is.na(activity$steps))` “NA” values in the steps column.  
+There are 2304 “NA” values in the steps column.  
 The following method will be used to impute values:
 - determine the day of the week  
 - determine the time interval  
 - if value is missing, then use the average for the same day of week / time interval combination.  
-```{r}
+
+```r
 # calculate averages per weekday and interval
 activity$wday <- wday(activity$date)
 day_time <- activity %>% 
@@ -139,10 +147,11 @@ activity_clean <- merge(activity,day_time,by = c("wday","interval"))
 activity_clean$steps[is.na(activity_clean$steps)] <- 
     activity_clean$avg_by_daytime[is.na(activity_clean$steps)]
 ```
-#### Following the cleanse the number of “NA” values is `r sum(is.na(activity_clean$steps))`.  
+#### Following the cleanse the number of “NA” values is 0.  
 
 #### A histogram of the total steps per day is shown below:
-```{r}
+
+```r
 # recalculate the totals per day using the imputed data
 by_day_complete <- activity_clean %>% 
     group_by(date) %>% 
@@ -192,19 +201,22 @@ g + geom_histogram(binwidth = 1000
           , axis.text = element_text(size = 10)) 
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 #### Comparison between mean and median for non-imputed / imputed datasets:  
  Mean:  
- Non-imputed mean = `r mean_steps`  
- Imputed mean = `r format(mean_complete, big.mark=",", scientific=FALSE)`  
- Difference = `r (mean_complete - mean_steps)` steps.  
+ Non-imputed mean = 9354  
+ Imputed mean = 10,821  
+ Difference = 1467 steps.  
 
  Median:  
- Non-imputed median = `r median_steps`  
- Imputed median = `r format(median_complete, big.mark=",", scientific=FALSE)`  
- Difference = `r (median_complete - median_steps)` steps. 
+ Non-imputed median = 10395  
+ Imputed median = 11,015  
+ Difference = 620 steps. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 # create new column denoting weekday or weekend
 activity_clean$day_type <- "Weekday"
 activity_clean$day_type[activity_clean$wday %in% c(6,7)] <- "Weekend"
@@ -225,4 +237,6 @@ g + geom_line(colour = "steelblue", lwd = 1) +
     ylab("Number of Steps") +
     theme(plot.title = element_text(hjust = 0.5))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
